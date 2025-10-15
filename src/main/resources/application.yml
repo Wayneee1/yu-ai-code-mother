@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: yu-ai-code-mother-backend
+server:
+  port: 8123
+  context-path: /api
