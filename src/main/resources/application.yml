@@ -5,3 +5,13 @@ server:
   port: 8123
   servlet:
     context-path: /api
+springdoc:
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.wayne.yuaicodemother.controller
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
