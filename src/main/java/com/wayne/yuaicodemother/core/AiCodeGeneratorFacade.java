@@ -1,6 +1,7 @@
 package com.wayne.yuaicodemother.core;
 
 import com.wayne.yuaicodemother.ai.AiCodeGeneratorService;
+import com.wayne.yuaicodemother.ai.AiCodeGeneratorServiceFactory;
 import com.wayne.yuaicodemother.ai.model.HtmlCodeResult;
 import com.wayne.yuaicodemother.ai.model.MultiFileCodeResult;
 import com.wayne.yuaicodemother.core.parser.CodeParserExecutor;
@@ -17,20 +18,23 @@ import java.io.File;
 
 /**
  * AI 代码生成门面类，组合代码生成和保存功能
+ * 门面类负责业务逻辑整合
  */
 @Slf4j
 @Service
 public class AiCodeGeneratorFacade {
     @Resource
-    private AiCodeGeneratorService aiCodeGeneratorService;
+    private AiCodeGeneratorServiceFactory aiCodeGeneratorServiceFactory;
 
     public File generateAndSaveCode(String userMessage, CodeGenTypeEnum codeGenTypeEnum,Long appId) {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
+        // 根据appId获取相应的AI服务实例
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
         return switch (codeGenTypeEnum) {
             case HTML -> {
-                HtmlCodeResult htmlCodeResult = aiCodeGeneratorService.generateHtmlCode(userMessage);
+                HtmlCodeResult htmlCodeResult = aiCodeGeneratorService.generateHtmlCode(1,userMessage);
                 yield CodeFileSaverExecutor.executeSaver(htmlCodeResult, CodeGenTypeEnum.HTML,appId);
             }
             case MULTI_FILE -> {
@@ -54,6 +58,8 @@ public class AiCodeGeneratorFacade {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成类型为空");
         }
+        // 根据appId获取相应的AI服务实例
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId);
         return switch (codeGenTypeEnum) {
             case HTML -> {
                 Flux<String> codeStream = aiCodeGeneratorService.generateHtmlCodeStream(userMessage);
@@ -106,7 +112,10 @@ public class AiCodeGeneratorFacade {
      * @param userMessage
      * @return
      */
+    @Deprecated
     private Flux<String> generateAndSaveHtmlCodeStream(String userMessage) {
+        // 根据appId获取相应的AI服务实例
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(0);
         Flux<String> result = aiCodeGeneratorService.generateHtmlCodeStream(userMessage);
         // 当流式返回生成代码完成后，再保存代码
         StringBuilder codeBuilder = new StringBuilder();
@@ -135,7 +144,10 @@ public class AiCodeGeneratorFacade {
      * @param userMessage 用户提示词
      * @return 保存的目录
      */
+    @Deprecated
     private Flux<String> generateAndSaveMultiFileCodeStream(String userMessage) {
+        // 根据appId获取相应的AI服务实例
+        AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(0);
         Flux<String> result = aiCodeGeneratorService.generateMultiFileCodeStream(userMessage);
         // 当流式返回生成代码完成后，再保存代码
         StringBuilder codeBuilder = new StringBuilder();

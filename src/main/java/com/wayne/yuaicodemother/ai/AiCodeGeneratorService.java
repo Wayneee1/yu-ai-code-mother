@@ -2,6 +2,7 @@ package com.wayne.yuaicodemother.ai;
 
 import com.wayne.yuaicodemother.ai.model.HtmlCodeResult;
 import com.wayne.yuaicodemother.ai.model.MultiFileCodeResult;
+import dev.langchain4j.service.MemoryId;
 import dev.langchain4j.service.SystemMessage;
 import reactor.core.publisher.Flux;
 
@@ -12,8 +13,8 @@ public interface AiCodeGeneratorService {
      * @return Ai的输出结果
      */
     @SystemMessage(fromResource = "prompt/codegen-html-system-prompt.txt")
-    HtmlCodeResult generateHtmlCode(String userMessage);
-    /**
+    HtmlCodeResult generateHtmlCode(@MemoryId int memoryId, String userMessage);
+    /**0
      * 生成多文件代码
      * @param userMessage
      * @return Ai的输出结果
