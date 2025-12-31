@@ -22,6 +22,7 @@ spring:
     redis:
       host: localhost
       port: 6379
+      database: 0
       password:
       ttl: 3600
   # 激活本地配置文件
