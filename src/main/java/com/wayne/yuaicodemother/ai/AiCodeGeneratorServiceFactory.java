@@ -2,6 +2,8 @@ package com.wayne.yuaicodemother.ai;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.wayne.yuaicodemother.ai.guardrail.PromptSafetyInputGuardrail;
+import com.wayne.yuaicodemother.ai.guardrail.RetryOutputGuardrail;
 import com.wayne.yuaicodemother.ai.tools.*;
 import com.wayne.yuaicodemother.exception.BusinessException;
 import com.wayne.yuaicodemother.exception.ErrorCode;
@@ -116,6 +118,9 @@ public class AiCodeGeneratorServiceFactory {
                         .hallucinatedToolNameStrategy(toolExecutionRequest -> ToolExecutionResultMessage.from(
                                 toolExecutionRequest, "Error: there is no tool called " + toolExecutionRequest.name()
                         ))
+                        .inputGuardrails(new PromptSafetyInputGuardrail()) // 添加输入护轨
+                        //.outputGuardrails(new RetryOutputGuardrail()) 为了保持流式输出注释，这个和流式输出二选一，它会导致流式输出响应不及时
+                        .maxSequentialToolsInvocations(15)
                         .build();
             }
             case HTML, MULTI_FILE -> {
