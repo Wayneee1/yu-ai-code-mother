@@ -80,6 +80,7 @@ public class AppController {
                 .concatWith(Mono.just(
                         // 发送结束事件
                         ServerSentEvent.<String>builder()
+                                .event("done")
                                 .data("")
                                 .build()
                 ));

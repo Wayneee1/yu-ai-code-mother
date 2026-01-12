@@ -14,7 +14,7 @@ class AiCodeGeneratorServiceTest {
     private AiCodeGeneratorService aiCodeGeneratorService;
     @Test
     void generateHtmlCode() {
-        HtmlCodeResult htmlCodeResult = aiCodeGeneratorService.generateHtmlCode(1,"请生成一个HTML页面，内容是：<h1>Hello World</h1>");
+        HtmlCodeResult htmlCodeResult = aiCodeGeneratorService.generateHtmlCode("请生成一个HTML页面，内容是：<h1>Hello World</h1>");
         Assertions.assertNotNull(htmlCodeResult);
     }
 

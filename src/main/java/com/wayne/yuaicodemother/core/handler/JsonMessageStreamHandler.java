@@ -92,7 +92,7 @@ public class JsonMessageStreamHandler {
                 String toolName = toolRequestMessage.getName();
                 // 检查是否是第一次看到这个工具 ID
                 if (toolId != null && !seenToolIds.contains(toolId)) {
-                    // 第一次调用这个工具，记录 ID 并返回工具信息
+                    // 第一次调用这个工具，记录 ID 并完整返回工具信息
                     seenToolIds.add(toolId);
                     // 根据工具名称获取工具实例
                     BaseTool tool = toolManager.getTool(toolName);
@@ -105,8 +105,9 @@ public class JsonMessageStreamHandler {
             }
             case TOOL_EXECUTED -> {
                 ToolExecutedMessage toolExecutedMessage = JSONUtil.toBean(chunk, ToolExecutedMessage.class);
-                String toolName = toolExecutedMessage.getName();
                 JSONObject jsonObject = JSONUtil.parseObj(toolExecutedMessage.getArguments());
+                // 根据工具名称获取工具实例
+                String toolName = toolExecutedMessage.getName();
                 // 根据工具名称获取工具实例并生成相应的结果格式
                 BaseTool tool = toolManager.getTool(toolName);
                 String result = tool.generateToolExecutedResult(jsonObject);
