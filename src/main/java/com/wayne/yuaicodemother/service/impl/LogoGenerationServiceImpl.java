@@ -1,24 +1,26 @@
-package com.wayne.yuaicodemother.langgraph4j.tools;
+package com.wayne.yuaicodemother.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesis;
 import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesisParam;
 import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesisResult;
-import com.wayne.yuaicodemother.langgraph4j.model.ImageResource;
-import com.wayne.yuaicodemother.langgraph4j.model.enums.ImageCategoryEnum;
-import dev.langchain4j.agent.tool.P;
-import dev.langchain4j.agent.tool.Tool;
+import com.wayne.yuaicodemother.model.ImageResource;
+import com.wayne.yuaicodemother.model.enums.ImageCategoryEnum;
+import com.wayne.yuaicodemother.service.LogoGenerationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Logo生成服务实现
+ */
 @Slf4j
-@Component
-public class LogoGeneratorTool {
+@Service
+public class LogoGenerationServiceImpl implements LogoGenerationService {
 
     @Value("${dashscope.api-key:}")
     private String dashScopeApiKey;
@@ -26,8 +28,8 @@ public class LogoGeneratorTool {
     @Value("${dashscope.image-model:wan2.2-t2i-flash}")
     private String imageModel;
 
-    @Tool("根据描述生成 Logo 设计图片，用于网站品牌标识")
-    public List<ImageResource> generateLogos(@P("Logo 设计描述，如名称、行业、风格等，尽量详细") String description) {
+    @Override
+    public List<ImageResource> generateLogos(String description) {
         List<ImageResource> logoList = new ArrayList<>();
         try {
             // 构建 Logo 设计提示词

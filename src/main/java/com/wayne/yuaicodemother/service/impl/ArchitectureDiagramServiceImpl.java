@@ -1,4 +1,4 @@
-package com.wayne.yuaicodemother.langgraph4j.tools;
+package com.wayne.yuaicodemother.service.impl;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.RandomUtil;
@@ -7,30 +7,31 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.system.SystemUtil;
 import com.wayne.yuaicodemother.exception.BusinessException;
 import com.wayne.yuaicodemother.exception.ErrorCode;
-import com.wayne.yuaicodemother.langgraph4j.model.ImageResource;
-import com.wayne.yuaicodemother.langgraph4j.model.enums.ImageCategoryEnum;
 import com.wayne.yuaicodemother.manager.CosManager;
-import dev.langchain4j.agent.tool.P;
-import dev.langchain4j.agent.tool.Tool;
+import com.wayne.yuaicodemother.model.ImageResource;
+import com.wayne.yuaicodemother.model.enums.ImageCategoryEnum;
+import com.wayne.yuaicodemother.service.ArchitectureDiagramService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * 架构图生成服务实现
+ */
 @Slf4j
-@Component
-public class MermaidDiagramTool {
+@Service
+public class ArchitectureDiagramServiceImpl implements ArchitectureDiagramService {
 
     @Resource
     private CosManager cosManager;
-    
-    @Tool("将 Mermaid 代码转换为架构图图片，用于展示系统结构和技术关系")
-    public List<ImageResource> generateMermaidDiagram(@P("Mermaid 图表代码") String mermaidCode,
-                                                      @P("架构图描述") String description) {
+
+    @Override
+    public List<ImageResource> generateMermaidDiagram(String mermaidCode, String description) {
         if (StrUtil.isBlank(mermaidCode)) {
             return new ArrayList<>();
         }

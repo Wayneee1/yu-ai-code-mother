@@ -1,4 +1,4 @@
-package com.wayne.yuaicodemother.langgraph4j.model.enums;
+package com.wayne.yuaicodemother.model.enums;
 
 import cn.hutool.core.util.ObjUtil;
 import lombok.Getter;

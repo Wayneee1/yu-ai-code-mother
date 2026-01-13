@@ -1,6 +1,6 @@
-package com.wayne.yuaicodemother.langgraph4j.model;
+package com.wayne.yuaicodemother.model;
 
-import com.wayne.yuaicodemother.langgraph4j.model.enums.ImageCategoryEnum;
+import com.wayne.yuaicodemother.model.enums.ImageCategoryEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

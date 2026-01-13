@@ -14,7 +14,9 @@ import com.wayne.yuaicodemother.core.parser.CodeParserExecutor;
 import com.wayne.yuaicodemother.core.saver.CodeFileSaverExecutor;
 import com.wayne.yuaicodemother.exception.BusinessException;
 import com.wayne.yuaicodemother.exception.ErrorCode;
+import com.wayne.yuaicodemother.model.ImageResource;
 import com.wayne.yuaicodemother.model.enums.CodeGenTypeEnum;
+import com.wayne.yuaicodemother.service.ImageCollectionService;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.service.TokenStream;
 import dev.langchain4j.service.tool.ToolExecution;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * AI 代码生成门面类，组合代码生成和保存功能
@@ -38,6 +41,9 @@ public class AiCodeGeneratorFacade {
     @Resource
     private VueProjectBuilder vueProjectBuilder;
 
+    @Resource
+    private ImageCollectionService imageCollectionService;
+
     /**
      * 统一入口：根据类型生成并保存代码
      *
@@ -50,15 +56,29 @@ public class AiCodeGeneratorFacade {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "生成类型不能为空");
         }
+        
+        // 收集图片（对所有代码生成类型生效，包含 HTML / MULTI_FILE）
+        String enhancedMessage = userMessage;
+        if (codeGenTypeEnum == CodeGenTypeEnum.HTML || codeGenTypeEnum == CodeGenTypeEnum.MULTI_FILE) {
+            try {
+                List<ImageResource> images = imageCollectionService.collectImages(userMessage);
+                String imagePrompt = imageCollectionService.formatImagesForPrompt(images);
+                enhancedMessage = userMessage + imagePrompt;
+                log.info("图片收集完成，共 {} 张图片，已添加到提示词", images.size());
+            } catch (Exception e) {
+                log.error("图片收集失败，继续使用原始提示词: {}", e.getMessage(), e);
+            }
+        }
+        
         // 根据 appId 获取相应的 AI 服务实例
         AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId, codeGenTypeEnum);
         return switch (codeGenTypeEnum) {
             case HTML -> {
-                HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(userMessage);
+                HtmlCodeResult result = aiCodeGeneratorService.generateHtmlCode(enhancedMessage);
                 yield CodeFileSaverExecutor.executeSaver(result, CodeGenTypeEnum.HTML, appId);
             }
             case MULTI_FILE -> {
-                MultiFileCodeResult result = aiCodeGeneratorService.generateMultiFileCode(userMessage);
+                MultiFileCodeResult result = aiCodeGeneratorService.generateMultiFileCode(enhancedMessage);
                 yield CodeFileSaverExecutor.executeSaver(result, CodeGenTypeEnum.MULTI_FILE, appId);
             }
             default -> {
@@ -79,19 +99,32 @@ public class AiCodeGeneratorFacade {
         if (codeGenTypeEnum == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "生成类型不能为空");
         }
+        
+        // 收集图片（对所有代码生成类型生效，包含 HTML / MULTI_FILE / VUE_PROJECT）
+        String enhancedMessage = userMessage;
+        try {
+            List<ImageResource> images = imageCollectionService.collectImages(userMessage);
+            String imagePrompt = imageCollectionService.formatImagesForPrompt(images);
+            enhancedMessage = userMessage + imagePrompt;
+            log.info("图片收集完成，共 {} 张图片，已添加到提示词", images.size());
+        } catch (Exception e) {
+            log.error("图片收集失败，继续使用原始提示词: {}", e.getMessage(), e);
+        }
+        
         // 根据 appId 获取相应的 AI 服务实例
         AiCodeGeneratorService aiCodeGeneratorService = aiCodeGeneratorServiceFactory.getAiCodeGeneratorService(appId, codeGenTypeEnum);
         return switch (codeGenTypeEnum) {
             case HTML -> {
-                Flux<String> codeStream = aiCodeGeneratorService.generateHtmlCodeStream(userMessage);
+                Flux<String> codeStream = aiCodeGeneratorService.generateHtmlCodeStream(enhancedMessage);
                 yield processCodeStream(codeStream, CodeGenTypeEnum.HTML, appId);
             }
             case MULTI_FILE -> {
-                Flux<String> codeStream = aiCodeGeneratorService.generateMultiFileCodeStream(userMessage);
+                Flux<String> codeStream = aiCodeGeneratorService.generateMultiFileCodeStream(enhancedMessage);
                 yield processCodeStream(codeStream, CodeGenTypeEnum.MULTI_FILE, appId);
             }
             case VUE_PROJECT -> {
-                TokenStream tokenStream = aiCodeGeneratorService.generateVueProjectCodeStream(appId, userMessage);
+                // 对 Vue 工程模式，同样使用增强后的提示词（包含图片资源说明）
+                TokenStream tokenStream = aiCodeGeneratorService.generateVueProjectCodeStream(appId, enhancedMessage);
                 yield processTokenStream(tokenStream, appId);
             }
             default -> {

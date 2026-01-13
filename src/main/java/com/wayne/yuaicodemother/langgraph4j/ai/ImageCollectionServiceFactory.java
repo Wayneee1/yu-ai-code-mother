@@ -46,3 +46,4 @@ public class ImageCollectionServiceFactory {
                 .build();
     }
 }
+
