@@ -1,6 +1,7 @@
 package com.wayne.yuaicodemother.service.impl;
 
 import com.wayne.yuaicodemother.ai.ImageCollectionPlanService;
+import com.wayne.yuaicodemother.ai.ImageCollectionPlanServiceFactory;
 import com.wayne.yuaicodemother.model.ImageCollectionPlan;
 import com.wayne.yuaicodemother.model.ImageResource;
 import com.wayne.yuaicodemother.service.ArchitectureDiagramService;
@@ -28,7 +29,7 @@ public class ImageCollectionServiceImpl implements ImageCollectionService {
     private ImageSearchService imageSearchService;
 
     @Resource
-    private ImageCollectionPlanService imageCollectionPlanService;
+    private ImageCollectionPlanServiceFactory imageCollectionPlanServiceFactory;
 
     @Resource
     private ArchitectureDiagramService architectureDiagramService;
@@ -43,8 +44,9 @@ public class ImageCollectionServiceImpl implements ImageCollectionService {
         List<ImageResource> allImages = new ArrayList<>();
 
         try {
-            // 第一步：使用 AI 生成图片收集计划
-            ImageCollectionPlan plan = imageCollectionPlanService.planImageCollection(userPrompt);
+            // 第一步：使用 AI 生成图片收集计划（每次请求创建一个新的服务实例）
+            ImageCollectionPlanService planService = imageCollectionPlanServiceFactory.createImageCollectionPlanService();
+            ImageCollectionPlan plan = planService.planImageCollection(userPrompt);
             log.info("获取到图片收集计划，开始并发执行图片搜索");
 
             // 第二步：并发执行各种图片收集任务

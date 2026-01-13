@@ -16,15 +16,21 @@ public class ImageCollectionPlanServiceFactory {
     private ChatModel chatModel;
 
     /**
-     * 创建图片收集计划服务
+     * 创建图片收集计划服务实例
      *
      * @return 图片收集计划服务
      */
-    @Bean
-    public ImageCollectionPlanService imageCollectionPlanService() {
+    public ImageCollectionPlanService createImageCollectionPlanService() {
         return AiServices.builder(ImageCollectionPlanService.class)
                 .chatModel(chatModel)
                 .build();
     }
-}
 
+    /**
+     * 默认提供一个 Bean (如果其他地方需要单例注入，虽然建议使用 create 方法)
+     */
+    @Bean
+    public ImageCollectionPlanService imageCollectionPlanService() {
+        return createImageCollectionPlanService();
+    }
+}
